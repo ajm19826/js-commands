@@ -36,3 +36,5 @@ This guarantees the error is captured and playable via the `play()` command.
 <script src="console.min.js"></script>
 (or wherever the file is located)
 ```
+## Preview
+<img src="https://raw.githubusercontent.com/ajm19826/js-commands/refs/heads/main/src/console/img/preview.png" alt="Preview">
