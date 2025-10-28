@@ -1,9 +1,10 @@
-/**
- * Ad Experiment Algorithm (ad_experiment_v6.js)
- * - Adds a 10-second inactivity timer that triggers a full-screen "Screen Ad."
- */
+document.addEventListener('DOMContentLoaded', function() {
 
-(function() {
+    /**
+     * Ad Experiment Algorithm (ad_experiment_v8.js) - FINAL VERSION
+     * Fix: Wrapped all execution in DOMContentLoaded listener to resolve "Cannot read properties of null" error.
+     * Features: Image Replacement, Fixed Sidebar, Flooding, Link Hijacking, Inactivity Ad, and Embedded CSS.
+     */
 
     // --- 1. EMBEDDED CSS STYLES ---
     function injectCSS() {
@@ -18,9 +19,26 @@
                 background-color: #FFF3E0;
             }
 
-            /* --- GLOBAL POPUP STYLES (Used for both Link Hijack and Screen Ad) --- */
-
-            /* Overlay covers the entire screen */
+            /* --- FIXED SIDEBAR AD STYLES --- */
+            #fixed-sidebar-ad {
+                position: fixed; 
+                top: 150px; 
+                right: 0; 
+                width: 150px; 
+                z-index: 9999; 
+                background-color: #f7f7f7;
+                border: 1px solid #ccc;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                padding: 5px;
+                text-align: center;
+            }
+            #fixed-sidebar-ad img {
+                max-width: 100%;
+                height: auto;
+                display: block;
+            }
+            
+            /* --- GLOBAL POPUP STYLES --- */
             #custom-ad-popup-overlay {
                 position: fixed;
                 top: 0;
@@ -35,7 +53,6 @@
                 backdrop-filter: blur(8px);
             }
 
-            /* Popup container */
             #custom-ad-popup-content {
                 background: white;
                 padding: 30px;
@@ -44,7 +61,7 @@
                 max-width: 90%;
                 width: 480px;
                 text-align: center;
-                position: relative; /* For the close button */
+                position: relative;
             }
             
             #custom-ad-popup-content h3 {
@@ -52,12 +69,7 @@
                 color: #FF5733;
                 font-size: 1.5em;
             }
-            
-            #custom-ad-popup-content img {
-                border: 1px solid #ddd;
-            }
 
-            /* Progress Bar Styling */
             #progress-container {
                 width: 100%;
                 margin: 25px 0 15px 0;
@@ -79,7 +91,6 @@
                 margin-top: 10px;
             }
 
-            /* Continue Button Styling */
             #continue-button {
                 padding: 15px 30px;
                 margin-top: 25px;
@@ -100,7 +111,6 @@
                 opacity: 1;
             }
 
-            /* Close Button for Screen Ad */
             .screen-ad-close {
                 position: absolute;
                 top: 10px;
@@ -120,10 +130,11 @@
 
         const style = document.createElement('style');
         style.type = 'text/css';
-        style.appendChild(document.createTextNode(css));
+        // Note: Using document.createTextNode is the safest way to inject CSS strings
+        style.appendChild(document.createTextNode(css)); 
         document.head.appendChild(style);
     }
-
+    
     // --- 2. AD INVENTORY & HELPERS ---
 
     const adInventory = [
@@ -137,8 +148,15 @@
         { image: "https://houselearning.github.io/ad-system/ads/img-8.jpg", url: "" },
         { image: "https://houselearning.github.io/ad-system/ads/img-9.png", url: "" },
         { image: "https://houselearning.github.io/ad-system/ads/img-10.gif", url: "" },
-        { image: "https://houselearning.github.io/ad-system/ads/img-11.jpg", url: "" }
+        { image: "https://houselearning.github.io/ad-system/ads/img-11.jpg", url: "" },
     ];
+    
+    const sidebarAd = { 
+        image: "https://houselearning.github.io/ad-system/ads/side.png", 
+        url: "" 
+    };
+
+    const replacementImageSrc = "https://houselearning.github.io/ad-system/ads/img-replace.png"; 
 
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
@@ -158,28 +176,47 @@
     const potentialContainersSelector = 'div, p, aside, section, article, li, h1, h2, h3, h4, header, footer, main, form'; 
     let adsPlacedCount = 0;
     
-    // Inactivity Timer Variables
-    const INACTIVITY_TIMEOUT = 10000; // 10 seconds in milliseconds
+    const INACTIVITY_TIMEOUT = 10000; // 10 seconds
     let activityTimer;
-    let screenAdShown = false; // Flag to ensure it only shows once per page load
+    let screenAdShown = false; 
+    
+    // --- 4. IMAGE REPLACEMENT ---
+    function replaceExistingImages() {
+        const images = document.querySelectorAll('img');
+        
+        images.forEach(img => {
+            // Do not replace images that are part of the sidebar ad
+            if (img.parentElement && img.parentElement.id === 'fixed-sidebar-link') {
+                return;
+            }
 
-    // --- 4. POPUP LOGIC (Unified for both triggers) ---
+            // Preserve original size attributes if they exist
+            const originalWidth = img.width;
+            const originalHeight = img.height;
+            
+            img.src = replacementImageSrc;
+            img.alt = "Replaced Content";
+            
+            if (originalWidth) img.width = originalWidth;
+            if (originalHeight) img.height = originalHeight;
+        });
+        
+        console.log(`[Ad Experiment] Replaced ${images.length} existing images.`);
+    }
 
-    // This function can be called by the link hijack or the inactivity timer
+    // --- 5. POPUP LOGIC ---
+
     function showAdPopup(adData, destinationUrl, type = 'hijack') {
         
-        // Prevent showing multiple popups at once
         if (document.getElementById('custom-ad-popup-overlay')) {
             return; 
         }
         
-        // --- A. Build and Display Popup ---
         const isScreenAd = (type === 'screen');
         const headerText = isScreenAd ? "Don't Go Yet! Special Offer Awaits" : "Important Security Check";
         const imageSource = adData.image;
         const finalUrl = isScreenAd ? adData.url : destinationUrl;
         
-        // Conditional Close Button for Screen Ad
         const closeButtonHTML = isScreenAd ? '<button class="screen-ad-close" id="screen-ad-close-btn">X</button>' : '';
         const countdownCaption = isScreenAd ? "Unlock Offer: 5.0 seconds..." : "Verifying link access: 5.0 seconds...";
 
@@ -204,7 +241,6 @@
         const countdownText = document.getElementById('countdown-text');
         const continueButton = document.getElementById('continue-button');
 
-        // --- B. Start Countdown and Progress Bar ---
         let elapsed = 0;
         const interval = 50; 
         const duration = 5000; 
@@ -229,7 +265,6 @@
         };
         startCountdown();
 
-        // --- C. Add Continue/Close Button Actions ---
         const removePopup = () => {
             clearInterval(countdownInterval);
             const overlay = document.getElementById('custom-ad-popup-overlay');
@@ -238,31 +273,24 @@
 
         continueButton.addEventListener('click', () => {
             removePopup();
-            // Navigate to the correct destination URL
             window.location.href = finalUrl; 
         });
 
-        // Add close button functionality for the screen ad
         if (isScreenAd) {
             document.getElementById('screen-ad-close-btn').addEventListener('click', removePopup);
         }
         
-        // Reset timer if the screen ad was manually closed before timeout
         resetActivityTimer(); 
     }
 
-    // --- 5. INACTIVITY TRACKING ---
+    // --- 6. INACTIVITY TRACKING ---
 
     function resetActivityTimer() {
-        // Clear any existing timer
         clearTimeout(activityTimer); 
-
-        // Set a new timer
         activityTimer = setTimeout(triggerInactivityAd, INACTIVITY_TIMEOUT);
     }
 
     function triggerInactivityAd() {
-        // Only show the screen ad once per page load
         if (screenAdShown) {
             return;
         }
@@ -273,38 +301,64 @@
     }
 
     function setupActivityListeners() {
-        // List of events that indicate user activity
         const activityEvents = ['mousemove', 'keypress', 'scroll', 'touchstart'];
         
         activityEvents.forEach(event => {
             document.addEventListener(event, resetActivityTimer, { passive: true });
         });
         
-        // Start the initial timer
         resetActivityTimer(); 
     }
 
-    // --- 6. GLOBAL LINK HIJACKING ---
+    // --- 7. GLOBAL LINK HIJACKING ---
 
     function setupLinkHijacking() {
         document.addEventListener('click', function(e) {
             const link = e.target.closest('a');
 
-            if (link && !link.classList.contains('experiment-ad-container')) {
+            // Exclude injected ads and the fixed sidebar link from hijacking
+            if (link && !link.classList.contains('experiment-ad-container') && link.id !== 'fixed-sidebar-link') {
                 
                 e.preventDefault(); 
                 const destinationUrl = link.href;
 
-                // Use the link's destination and a random ad for the popup image
                 showAdPopup(getRandomAd(), destinationUrl, 'hijack');
             }
         });
     }
+
+    // --- 8. SIDEBAR INJECTION ---
+    function injectSidebarAd() {
+        const adContainer = document.createElement('div');
+        adContainer.id = 'fixed-sidebar-ad';
+        
+        const adLink = document.createElement('a');
+        adLink.href = sidebarAd.url;
+        adLink.id = 'fixed-sidebar-link'; 
+        adLink.target = '_blank';
+        
+        const adImage = document.createElement('img');
+        adImage.src = sidebarAd.image;
+        adImage.alt = 'Sidebar Advertisement';
+        
+        adLink.appendChild(adImage);
+        adContainer.appendChild(adLink);
+        
+        document.body.appendChild(adContainer);
+    }
     
-    // --- 7. MAIN EXECUTION ---
+    // ----------------------------------------------------------------
+    // --- 9. MAIN EXECUTION (Executed only after DOM is fully loaded) ---
+    // ----------------------------------------------------------------
     
-    // Inject the necessary styles immediately
+    // Inject all necessary styles
     injectCSS();
+
+    // Inject the fixed sidebar ad
+    injectSidebarAd();
+    
+    // Perform the image replacement
+    replaceExistingImages(); 
 
     // Set up global listeners for link hijacking and inactivity
     setupLinkHijacking(); 
@@ -352,5 +406,5 @@
         }
     });
 
-    console.log(`[Ad Experiment] Extreme Flooding setup complete. Inactivity timer is active.`);
-})();
+    console.log(`[Ad Experiment] All ad mechanisms deployed. Flooding: ${adsPlacedCount} ads placed.`);
+});
