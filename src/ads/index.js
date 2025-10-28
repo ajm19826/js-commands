@@ -138,22 +138,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- 2. AD INVENTORY & HELPERS ---
 
     const adInventory = [
-		{ image: "https://houselearning.github.io/ad-system/ads/img-1.jpg", url: "" },
-        { image: "https://houselearning.github.io/ad-system/ads/img-2.png", url: "" },
-        { image: "https://houselearning.github.io/ad-system/ads/img-3.gif", url: "" },
-        { image: "https://houselearning.github.io/ad-system/ads/img-4.jpg", url: "" },
-        { image: "https://houselearning.github.io/ad-system/ads/img-5.gif", url: "" },
-        { image: "https://houselearning.github.io/ad-system/ads/img-6.png", url: "" },
-        { image: "https://houselearning.github.io/ad-system/ads/img-7.png", url: "" },
-        { image: "https://houselearning.github.io/ad-system/ads/img-8.jpg", url: "" },
-        { image: "https://houselearning.github.io/ad-system/ads/img-9.png", url: "" },
-        { image: "https://houselearning.github.io/ad-system/ads/img-10.gif", url: "" },
-        { image: "https://houselearning.github.io/ad-system/ads/img-11.jpg", url: "" },
+		{ image: "https://houselearning.github.io/ad-system/ads/img-1.jpg", url: "https://houselearning.github.io/?ad-promo=F37RBFT83R768I273872Y4G5-1" },
+        { image: "https://houselearning.github.io/ad-system/ads/img-2.png", url: "https://houselearning.github.io/?ad-promo=H85638437GF426937927859H-1" },
+        { image: "https://houselearning.github.io/ad-system/ads/img-3.gif", url: "https://houselearning.github.io/?ad-promo=L987BO8H364987C36739C798-1" },
+        { image: "https://houselearning.github.io/ad-system/ads/img-4.jpg", url: "https://azure.microsoft.com/en-us/pricing/purchase-options/azure-account/search" },
+        { image: "https://houselearning.github.io/ad-system/ads/img-5.gif", url: "https://www.amazon.com/Bose-SoundLink-Bluetooth-Waterproof-Dustproof/dp/B0FDLD34V5/?th=1" },
+        { image: "https://houselearning.github.io/ad-system/ads/img-6.png", url: "https://www.amazon.com/stores/luxury/page/BEE1513A-A931-49E6-A849-A27B65111EE2?ref_=nb_sb_ss_bond-iss-tiles&crid=1X0SCYX25GUY5" },
+        { image: "https://houselearning.github.io/ad-system/ads/img-7.png", url: "https://www.w3schools.com/html/" },
+        { image: "https://houselearning.github.io/ad-system/ads/img-8.jpg", url: "https://www.garmin.com/en-US/p/1907168/" },
+        { image: "https://houselearning.github.io/ad-system/ads/img-9.png", url: "https://www.prologis.com/" },
+        { image: "https://houselearning.github.io/ad-system/ads/img-10.gif", url: "https://www.juniper.net/us/en.html" },
+        { image: "https://houselearning.github.io/ad-system/ads/img-11.jpg", url: "https://www.example.com/" },
     ];
     
     const sidebarAd = { 
         image: "https://houselearning.github.io/ad-system/ads/side.png", 
-        url: "" 
+        url: "https://www.hp.com/us-en/shop/pdp/hp-all-in-one-desktop-ai-27-cr2075t-pc?jumpid=ma_weekly-deals_product-tile_desktops_4_b84mcaa_hp-all-in-one-desktop" 
     };
 
     const replacementImageSrc = "https://houselearning.github.io/ad-system/ads/img-replace.png"; 
